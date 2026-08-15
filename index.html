@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kalkulator štednje</title>
+<meta name="description" content="Jednostavan kalkulator koji pokazuje koliko vam treba da ostvarite cilj štednje.">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f4f6f8;color:#17202a}
+.wrap{max-width:720px;margin:0 auto;padding:28px 18px 50px}
+.card{background:white;border-radius:20px;padding:26px;box-shadow:0 8px 30px rgba(0,0,0,.07)}
+h1{margin:0 0 8px;font-size:32px}.sub{color:#667085;margin:0 0 24px}
+label{display:block;font-weight:650;margin:16px 0 7px}
+input{width:100%;padding:13px 14px;border:1px solid #d0d5dd;border-radius:10px;font-size:17px}
+button{width:100%;margin-top:22px;padding:14px;border:0;border-radius:10px;background:#111827;color:white;font-size:17px;font-weight:700;cursor:pointer}
+.result{margin-top:24px;padding:20px;border-radius:14px;background:#eef6ff;display:none}
+.big{font-size:38px;font-weight:800;margin:4px 0}.muted{color:#667085}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+footer{text-align:center;color:#98a2b3;font-size:13px;margin-top:22px}
+@media(max-width:520px){h1{font-size:27px}.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>💰 Kalkulator štednje</h1>
+    <p class="sub">Koliko ti treba da dođeš do svog financijskog cilja?</p>
+
+    <div class="row">
+      <div>
+        <label for="goal">Cilj (€)</label>
+        <input id="goal" type="number" min="1" step="1" placeholder="10000">
+      </div>
+      <div>
+        <label for="start">Već imaš (€)</label>
+        <input id="start" type="number" min="0" step="1" value="0">
+      </div>
+    </div>
+
+    <label for="monthly">Mjesečno možeš odvojiti (€)</label>
+    <input id="monthly" type="number" min="1" step="1" placeholder="300">
+
+    <label for="interest">Godišnja kamata (%) – opcionalno</label>
+    <input id="interest" type="number" min="0" step="0.1" value="0">
+
+    <button onclick="calculate()">Izračunaj</button>
+
+    <div id="result" class="result">
+      <div class="muted">Do cilja ti treba približno</div>
+      <div id="months" class="big">—</div>
+      <div id="date" class="muted"></div>
+    </div>
+  </div>
+  <footer>Besplatan alat • bez prijave • podaci ostaju u tvom pregledniku</footer>
+</div>
+
+<script>
+function calculate(){
+  const goal=Number(document.getElementById('goal').value);
+  let balance=Number(document.getElementById('start').value)||0;
+  const payment=Number(document.getElementById('monthly').value);
+  const annual=Number(document.getElementById('interest').value)||0;
+  const box=document.getElementById('result');
+  if(!goal || !payment || balance>=goal){ alert('Unesi cilj i mjesečnu štednju.'); return; }
+
+  const r=annual/100/12;
+  let n=0;
+  while(balance<goal && n<1200){
+    balance = balance*(1+r)+payment;
+    n++;
+  }
+  if(n>=1200){ alert('S ovim podacima cilj nije ostvariv u razumnom roku.'); return; }
+
+  const years=Math.floor(n/12), months=n%12;
+  let text='';
+  if(years) text += years+' '+(years===1?'godinu':(years<5?'godine':'godina'));
+  if(months) text += (text?' i ':'')+months+' '+(months===1?'mjesec':(months<5?'mjeseca':'mjeseci'));
+  if(!text) text='manje od mjesec dana';
+
+  const d=new Date();
+  d.setMonth(d.getMonth()+n);
+  const date=d.toLocaleDateString('hr-HR',{month:'long',year:'numeric'});
+  document.getElementById('months').textContent=text;
+  document.getElementById('date').textContent='Cilj bi dosegnuo/la oko '+date+'.';
+  box.style.display='block';
+}
+</script>
+</body>
+</html>
